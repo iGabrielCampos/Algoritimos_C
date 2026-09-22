@@ -1,0 +1,15 @@
+# Executáveis compilados
+Empilhadeira
+Termostato
+*.out
+*.exe
+*.o
+
+# Arquivos de depuração e temporários
+*.dSYM/
+*~
+*.swp
+
+# Configurações de IDE / Editores
+.vscode/
+.idea/
