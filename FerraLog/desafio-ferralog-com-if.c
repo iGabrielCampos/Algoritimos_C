@@ -17,7 +17,7 @@ int main() {
     printf("Valor da compra: R$ ");
     scanf("%f", &valor_compra);
 
-    system("cls"); 
+    system("clear"); 
 
     // O pulo do gato: Pesquisar e aplicar a condicional IF
     if (valor_compra > 0) {
@@ -27,3 +27,8 @@ int main() {
         printf("Valor: R$ %.2f\n", valor_compra);
     } else {
         // Se o valor for negativo ou zero, exibe o erro
+        printf("ERRO: O valor da compra deve ser maior que zero!\n");
+    }
+
+    return 0;
+}

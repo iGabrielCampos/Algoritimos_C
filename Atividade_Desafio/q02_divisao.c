@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void) {
+int main() {
     float primeiro_valor = 0.0f;
     float segundo_valor = 0.0f;
 

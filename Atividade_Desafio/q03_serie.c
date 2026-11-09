@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void) {
+int main() {
     double soma_s = 0.0;
 
     printf("==================================================\n");

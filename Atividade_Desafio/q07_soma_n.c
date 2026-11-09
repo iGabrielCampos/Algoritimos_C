@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void) {
+int main() {
     int valor_a = 0;
     int valor_n = 0;
     int soma = 0;

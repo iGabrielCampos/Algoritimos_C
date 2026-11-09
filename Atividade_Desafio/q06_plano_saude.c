@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void) {
+int main() {
     int idade = 0;
     int tem_doenca = 0;
     int qtd_doencas = 0;

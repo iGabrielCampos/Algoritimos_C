@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void) {
+int main() {
     float notas[20];
     float soma = 0.0f;
     int acima_da_media = 0;

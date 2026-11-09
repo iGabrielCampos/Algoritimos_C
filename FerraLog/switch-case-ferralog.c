@@ -4,7 +4,7 @@
 int main() {
     int opcao_menu = 0;
     char nome_ferramenta[50];
-    unsigned int codigo_qr = 0;
+    int codigo_qr = 0;
     float valor_compra = 0.0;
     int possui_garantia = 0;
 
@@ -31,7 +31,7 @@ int main() {
             scanf("%s", nome_ferramenta); 
             
             printf("Codigo QR: ");
-            scanf("%u", &codigo_qr); 
+            scanf("%d", &codigo_qr); 
             
             printf("Valor da compra: R$ ");
             scanf("%f", &valor_compra);
@@ -43,15 +43,21 @@ int main() {
 
             printf("--- RECIBO FERRALOG ---\n");
             printf("Ferramenta: %s\n", nome_ferramenta);
-            printf("QR Code: %u\n", codigo_qr);
+            printf("QR Code: %d\n", codigo_qr);
             printf("Valor: R$ %.2f\n", valor_compra);
             
-            // DESAFIO HACKER: Condicional com operador logico &&
-            if (valor_compra > 1000.0 && possui_garantia == 0) {
-                printf("STATUS: *** ALERTA DE ALTO RISCO FINANCEIRO ***\n");
-                printf("Motivo: Equipamento de alto valor alocado sem cobertura de garantia.\n");
+            // Verifica se a ferramenta custa mais de 1000 e nao possui garantia
+            int alto_risco = 0;
+            if (valor_compra > 1000.0) {
+                if (possui_garantia == 0) {
+                    alto_risco = 1;
+                }
+            }
+
+            if (alto_risco == 1) {
+                printf("Status: ALERTA: Equipamento caro cadastrado sem garantia!\n");
             } else {
-                printf("STATUS: Cadastro em conformidade.\n");
+                printf("Status: Cadastro realizado com sucesso.\n");
             }
             
             // O break impede que o codigo invada o "case 2"
@@ -66,7 +72,7 @@ int main() {
             break;
 
         case 4:
-            printf("Desconectando do banco de dados...\nSaindo do sistema. Ate logo!\n");
+            printf("Salvando dados...\nSaindo do sistema. Ate logo!\n");
             break;
 
         default:

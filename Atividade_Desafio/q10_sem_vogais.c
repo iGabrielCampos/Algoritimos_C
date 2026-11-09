@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 
-void remover_quebra_linha(char *str) {
-    size_t len = strlen(str);
-    if (len > 0 && str[len - 1] == '\n') {
-        str[len - 1] = '\0';
+void remover_quebra_linha(char str[]) {
+    int len = strlen(str);
+    if (len > 0) {
+        if (str[len - 1] == '\n') {
+            str[len - 1] = '\0';
+        }
     }
 }
 
-int main(void) {
+int main() {
     char texto[256];
     char sem_vogais[256];
     int j = 0;
@@ -18,19 +20,30 @@ int main(void) {
     printf("==================================================\n");
 
     printf("Digite um texto: ");
-    if (fgets(texto, sizeof(texto), stdin) != NULL) {
-        remover_quebra_linha(texto);
-    }
+    fgets(texto, 256, stdin);
+    remover_quebra_linha(texto);
 
-    // copia tudo que nao for vogal
+    // copia apenas os caracteres que nao sao vogais
     for (int i = 0; texto[i] != '\0'; i++) {
         char c = texto[i];
+        int eh_vogal = 0;
 
-        if (c != 'a' && c != 'A' &&
-            c != 'e' && c != 'E' &&
-            c != 'i' && c != 'I' &&
-            c != 'o' && c != 'O' &&
-            c != 'u' && c != 'U') {
+        switch (c) {
+            case 'a':
+            case 'A':
+            case 'e':
+            case 'E':
+            case 'i':
+            case 'I':
+            case 'o':
+            case 'O':
+            case 'u':
+            case 'U':
+                eh_vogal = 1;
+                break;
+        }
+
+        if (eh_vogal == 0) {
             sem_vogais[j] = c;
             j++;
         }

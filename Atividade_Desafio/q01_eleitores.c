@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void) {
+int main() {
     int total_eleitores = 0;
     int votos_brancos = 0;
     int votos_nulos = 0;

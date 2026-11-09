@@ -6,7 +6,7 @@ int main() {
     
     // Variaveis de cadastro
     char nome_ferramenta[50];
-    unsigned int codigo_qr = 0;
+    int codigo_qr = 0;
     float valor_compra = 0.0;
     int possui_garantia = 0;
 
@@ -32,7 +32,7 @@ int main() {
                 scanf("%s", nome_ferramenta); 
                 
                 printf("Codigo QR: ");
-                scanf("%u", &codigo_qr); 
+                scanf("%d", &codigo_qr); 
                 
                 printf("Valor da compra: R$ ");
                 scanf("%f", &valor_compra);
@@ -42,7 +42,7 @@ int main() {
 
                 system("clear");
                 printf("--- RECIBO FERRALOG ---\n");
-                printf("Ferramenta '%s' (QR: %u) cadastrada com sucesso!\n\n", nome_ferramenta, codigo_qr);
+                printf("Ferramenta '%s' (QR: %d) cadastrada com sucesso!\n\n", nome_ferramenta, codigo_qr);
                 break; 
 
             case 2:

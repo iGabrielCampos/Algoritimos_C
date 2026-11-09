@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-int main(void) {
+int main() {
     int numeros[20];
     int primos[20];
     int total_primos = 0;
@@ -38,7 +38,7 @@ int main(void) {
             }
         }
 
-        if (eh_primo) {
+        if (eh_primo == 1) {
             primos[total_primos] = n;
             total_primos++;
         }
@@ -50,7 +50,10 @@ int main(void) {
     if (total_primos > 0) {
         printf("Primos encontrados: ");
         for (int i = 0; i < total_primos; i++) {
-            printf("%d%s", primos[i], (i == total_primos - 1) ? "" : ", ");
+            printf("%d", primos[i]);
+            if (i < total_primos - 1) {
+                printf(", ");
+            }
         }
         printf("\n");
     } else {
