@@ -1,3 +1,4 @@
+/* Sertão Trail: simulação da marcha dos retirantes durante a seca de 1877. */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,8 +7,6 @@
 
 #define MAX_MEMBROS 4
 #define META_LEGUAS 100.0f
-
-/* --- ESTRUTURAS DE DADOS (Inspiradas no padrao FerraLog e atividades) --- */
 
 typedef enum {
     ESTADO_SAUDAVEL = 0,
@@ -20,39 +19,33 @@ typedef enum {
 typedef struct {
     char nome[40];
     char papel[50];
-    int saude;        // 0 a 100
+    int saude;
     EstadoSaude estado;
-    int vivo;         // 1 = vivo, 0 = falecido
+    int vivo;
 } Membro;
 
 typedef struct {
     int dia;
     float leguas_andadas;
-    float temperatura_ambiente; // inspirada no Termostato.c
-    int clima_hoje;             // 1=Sol escaldante, 2=Quente, 3=Ameno, 4=Chuva abencoada
-    
-    // Mantimentos e recursos
+    float temperatura_ambiente;
+    int clima_hoje;
+
     float agua_litros;
     float rapadura_kg;
-    int mezinhas;               // Garrafadas medicinais
-    int fumo_rolo;              // Moeda de troca com sertanejos e cangaço
-    int dinheiro_reis;          // Moeda da epoca (reis)
-    
-    // Animal de transporte
-    int condicao_jumento;       // 0 a 100% de saude do jumento Faisca
-    int jumento_vivo;           // 1 = vivo, 0 = perdido/falecido
-    
-    // Pessoas
+    int mezinhas;
+    int fumo_rolo;
+    int dinheiro_reis;
+
+    int condicao_jumento;
+    int jumento_vivo;
+
     Membro familia[MAX_MEMBROS];
     int total_vivos;
-    
-    // Controle de marcos de vilarejos ja visitados
+
     int vila_25_visitada;
     int vila_50_visitada;
     int vila_75_visitada;
 } Caravana;
-
-/* --- FUNCOES UTILITARIAS DE ENTRADA E TELA --- */
 
 void dormir(int s) {
     if (isatty(STDIN_FILENO)) {
@@ -100,29 +93,26 @@ const char* descrever_estado(EstadoSaude estado) {
     }
 }
 
-/* --- INICIALIZACAO DA CARAVANA --- */
-
 void inicializar_caravana(Caravana *c) {
     c->dia = 1;
     c->leguas_andadas = 0.0f;
     c->temperatura_ambiente = 33.0f;
     c->clima_hoje = 2;
-    
+
     c->agua_litros = 20.0f;
     c->rapadura_kg = 15.0f;
     c->mezinhas = 2;
     c->fumo_rolo = 3;
-    c->dinheiro_reis = 4500; // 4 mil e 500 réis
-    
+    c->dinheiro_reis = 4500;
+
     c->condicao_jumento = 100;
     c->jumento_vivo = 1;
     c->total_vivos = 4;
-    
+
     c->vila_25_visitada = 0;
     c->vila_50_visitada = 0;
     c->vila_75_visitada = 0;
 
-    // Familia de retirantes
     strcpy(c->familia[0].nome, "Severino");
     strcpy(c->familia[0].papel, "Pai de Família");
     c->familia[0].saude = 100;
@@ -147,8 +137,6 @@ void inicializar_caravana(Caravana *c) {
     c->familia[3].estado = ESTADO_SAUDAVEL;
     c->familia[3].vivo = 1;
 }
-
-/* --- RELATORIO E PAINEL DA CARAVANA --- */
 
 void exibir_painel(const Caravana *c) {
     system("clear");
@@ -184,58 +172,53 @@ void exibir_painel(const Caravana *c) {
     printf("======================================================================\n");
 }
 
-/* --- LOGICA DIARIA DE CLIMA E CONSUMO (Inspirada no Termostato e Empilhadeira) --- */
-
 void atualizar_clima_e_temperatura(Caravana *c) {
     int r = rand() % 100;
     if (r < 25) {
-        c->clima_hoje = 1; // Sol escaldante
-        c->temperatura_ambiente = 38.0f + (float)(rand() % 50) / 10.0f; // 38.0 a 42.9 °C
+        c->clima_hoje = 1;
+        c->temperatura_ambiente = 38.0f + (float)(rand() % 50) / 10.0f;
     } else if (r < 70) {
-        c->clima_hoje = 2; // Mormaço
-        c->temperatura_ambiente = 32.0f + (float)(rand() % 50) / 10.0f; // 32.0 a 36.9 °C
+        c->clima_hoje = 2;
+        c->temperatura_ambiente = 32.0f + (float)(rand() % 50) / 10.0f;
     } else if (r < 90) {
-        c->clima_hoje = 3; // Ameno
-        c->temperatura_ambiente = 27.0f + (float)(rand() % 40) / 10.0f; // 27.0 a 30.9 °C
+        c->clima_hoje = 3;
+        c->temperatura_ambiente = 27.0f + (float)(rand() % 40) / 10.0f;
     } else {
-        c->clima_hoje = 4; // Chuva
-        c->temperatura_ambiente = 24.0f + (float)(rand() % 30) / 10.0f; // 24.0 a 26.9 °C
+        c->clima_hoje = 4;
+        c->temperatura_ambiente = 24.0f + (float)(rand() % 30) / 10.0f;
     }
 }
 
 void consumir_recursos_diarios(Caravana *c, int fator_esforco) {
     if (c->total_vivos <= 0) return;
 
-    // Consumo de agua depende do clima e do esforco da marcha
     float consumo_base_agua_por_pessoa = 1.0f;
-    if (c->clima_hoje == 1) { // Calor escaldante
+    if (c->clima_hoje == 1) {
         consumo_base_agua_por_pessoa += 0.8f;
-    } else if (c->clima_hoje == 4) { // Chuva passageira: coleta um pouco de agua!
+    } else if (c->clima_hoje == 4) {
         c->agua_litros += 3.5f;
         printf("\n🌧️  A chuva de relâmpago encheu as cuias e potes! (+3.5 L de água colhida)\n");
     }
 
-    if (fator_esforco == 3) { // Passo forçado
+    if (fator_esforco == 3) {
         consumo_base_agua_por_pessoa += 0.5f;
-    } else if (fator_esforco == 0) { // Descanso
+    } else if (fator_esforco == 0) {
         consumo_base_agua_por_pessoa -= 0.3f;
     }
 
     float agua_necessaria = c->total_vivos * consumo_base_agua_por_pessoa;
     if (c->jumento_vivo) {
-        agua_necessaria += 2.0f; // Jumento bebe agua
+        agua_necessaria += 2.0f;
     }
 
-    float comida_necessaria = c->total_vivos * 0.5f; // Meio quilo de rapadura por pessoa
+    float comida_necessaria = c->total_vivos * 0.5f;
 
-    // Descontar agua
     if (c->agua_litros >= agua_necessaria) {
         c->agua_litros -= agua_necessaria;
     } else {
         float deficit = agua_necessaria - c->agua_litros;
         c->agua_litros = 0.0f;
         printf("\n⚠️  ALERTA CRÍTICO: Falta de água no sertão! Faltaram %.1f L para a caravana.\n", deficit);
-        // Pessoas sofrem desidratacao
         for (int i = 0; i < MAX_MEMBROS; i++) {
             if (c->familia[i].vivo) {
                 c->familia[i].saude -= 15;
@@ -249,7 +232,6 @@ void consumir_recursos_diarios(Caravana *c, int fator_esforco) {
         }
     }
 
-    // Descontar comida
     if (c->rapadura_kg >= comida_necessaria) {
         c->rapadura_kg -= comida_necessaria;
     } else {
@@ -262,7 +244,6 @@ void consumir_recursos_diarios(Caravana *c, int fator_esforco) {
         }
     }
 
-    // Impacto de doencas ativas
     for (int i = 0; i < MAX_MEMBROS; i++) {
         if (!c->familia[i].vivo) continue;
 
@@ -274,7 +255,6 @@ void consumir_recursos_diarios(Caravana *c, int fator_esforco) {
             printf("🐍 O veneno da cascavel ainda queima nas veias de %s!\n", c->familia[i].nome);
         }
 
-        // Checar morte
         if (c->familia[i].saude <= 0) {
             c->familia[i].saude = 0;
             c->familia[i].vivo = 0;
@@ -285,7 +265,6 @@ void consumir_recursos_diarios(Caravana *c, int fator_esforco) {
         }
     }
 
-    // Checar condicao do jumento
     if (c->jumento_vivo && c->condicao_jumento <= 0) {
         c->jumento_vivo = 0;
         c->condicao_jumento = 0;
@@ -296,20 +275,17 @@ void consumir_recursos_diarios(Caravana *c, int fator_esforco) {
     }
 }
 
-/* --- EVENTOS ALEATORIOS DA CAATINGA --- */
-
 void disparar_evento_aleatorio(Caravana *c) {
     if (c->total_vivos <= 0 || !c->familia[0].vivo) return;
 
     int chance = rand() % 100;
-    // 40% de chance de ocorrer evento na marcha
     if (chance > 40) return;
 
     int tipo = rand() % 6;
     printf("\n------------------- [ ACONTECIMENTO NA VEREDA ] -------------------\n");
 
     switch (tipo) {
-        case 0: { // Encontro com o Bando de Cangaceiros
+        case 0: {
             printf("🌵 Três cavaleiros armados de bacamarte e punhal surgem por entre as juremas!\n");
             printf("   É o Bando do Capitão Sabiá, cobrando pedágio de quem cruza a caatinga.\n");
             if (c->fumo_rolo > 0) {
@@ -329,14 +305,14 @@ void disparar_evento_aleatorio(Caravana *c) {
             }
             break;
         }
-        case 1: { // Olho d'agua ou cacimba na serra
+        case 1: {
             float agua_achada = 6.0f + (float)(rand() % 7);
             c->agua_litros += agua_achada;
             printf("💧 MILAGRE: Vô Chico avistou um olho d'água vertendo numa grota de pedras!\n");
             printf("   A caravana encheu os cantis com %.1f litros de água pura e cristalina!\n", agua_achada);
             break;
         }
-        case 2: { // Cobra cascavel
+        case 2: {
             int vivos_indices[MAX_MEMBROS];
             int n_vivos = 0;
             for (int i = 0; i < MAX_MEMBROS; i++) {
@@ -362,7 +338,7 @@ void disparar_evento_aleatorio(Caravana *c) {
             }
             break;
         }
-        case 3: { // Encontro com outros retirantes solidarios
+        case 3: {
             printf("👥 Um comboio de retirantes de Canudos cruzou a mesma vereda empoeirada.\n");
             printf("   Sentaram-se ao redor da fogueira para trocar prosas e rezas.\n");
             if (c->mezinhas == 0 && c->rapadura_kg >= 3.0f) {
@@ -379,7 +355,7 @@ void disparar_evento_aleatorio(Caravana *c) {
             }
             break;
         }
-        case 4: { // Jumento Faisca empaca ou espeta o casco
+        case 4: {
             if (c->jumento_vivo) {
                 printf("🫏 Faísca pisou num espinho de jurema-preta e empacou rinchando!\n");
                 printf("   Severino e Zé Pequeno tiveram que parar para tirar o estrepe com a ponta da peixeira.\n");
@@ -391,7 +367,7 @@ void disparar_evento_aleatorio(Caravana *c) {
             }
             break;
         }
-        case 5: { // Cacto Coroa-de-Frade e Mandacaru
+        case 5: {
             printf("🌵 Vô Chico ensina a família a descascar o coração de uma coroa-de-frade.\n");
             printf("   A polpa suculenta amenizou a sede e deu sustança (+3.0 L de água, +1.5 kg rapadura).\n");
             c->agua_litros += 3.0f;
@@ -401,8 +377,6 @@ void disparar_evento_aleatorio(Caravana *c) {
     }
     printf("-------------------------------------------------------------------\n");
 }
-
-/* --- VILAREJOS E FEIRAS LIVRES (Comercio com Reis) --- */
 
 void visitar_feira_livre(Caravana *c, const char *nome_vila) {
     int opcao = 0;
@@ -563,8 +537,6 @@ void verificar_marcos_estrada(Caravana *c) {
     }
 }
 
-/* --- ACOES DO JOGADOR --- */
-
 void acao_marchar(Caravana *c) {
     int ritmo = 0;
     printf("\nEscolha o ritmo da marcha para hoje:\n");
@@ -578,7 +550,7 @@ void acao_marchar(Caravana *c) {
     if (leu_ritmo == EOF || feof(stdin)) return;
     if (leu_ritmo != 1) {
         limpar_buffer();
-        ritmo = 2; // padrao
+        ritmo = 2;
     } else {
         limpar_buffer();
     }
@@ -594,17 +566,17 @@ void acao_marchar(Caravana *c) {
 
     switch (ritmo) {
         case 1:
-            distancia = 1.8f + (float)(rand() % 8) / 10.0f; // 1.8 a 2.5
+            distancia = 1.8f + (float)(rand() % 8) / 10.0f;
             desgaste_jumento = 2;
             break;
         case 3:
-            distancia = 5.5f + (float)(rand() % 15) / 10.0f; // 5.5 a 6.9
+            distancia = 5.5f + (float)(rand() % 15) / 10.0f;
             desgaste_jumento = 12;
             break;
         case 2:
         default:
             ritmo = 2;
-            distancia = 3.5f + (float)(rand() % 12) / 10.0f; // 3.5 a 4.6
+            distancia = 3.5f + (float)(rand() % 12) / 10.0f;
             desgaste_jumento = 6;
             break;
     }
@@ -653,13 +625,11 @@ void acao_descansar(Caravana *c) {
         printf("Faísca pastou capim seco na sombra e recuperou o fôlego (+15%%).\n");
     }
 
-    consumir_recursos_diarios(c, 0); // esforco 0 = descanso
+    consumir_recursos_diarios(c, 0);
     c->dia++;
     atualizar_clima_e_temperatura(c);
     pausar_tela();
 }
-
-/* --- EXPLORACAO DA CAATINGA (AGUA E COMIDA) --- */
 
 void acao_procurar_recursos(Caravana *c) {
     int opcao_busca = 0;
@@ -696,45 +666,43 @@ void acao_procurar_recursos(Caravana *c) {
     float comida_encontrada = 0.0f;
     int sorte = rand() % 100;
 
-    if (opcao_busca == 1) { // FOCO EXCLUSIVO EM AGUA
-        if (sorte < 40) { // Cacimba viva em leito seco
-            agua_encontrada = 14.0f + (float)(rand() % 9); // 14.0 a 22.0 L
+    if (opcao_busca == 1) {
+        if (sorte < 40) {
+            agua_encontrada = 14.0f + (float)(rand() % 9);
             printf("💧 SUCESSO BENTO! Cavando a areia branca de um rio seco, acharam uma CACIMBA VIVA!\n");
             printf("   Água límpida e fresca brotou da pedra! Encheram os potes e ancoretas (+%.1f L)!\n", agua_encontrada);
-        } else if (sorte < 85) { // Raizes de umbuzeiro ("batatas d'agua")
-            agua_encontrada = 9.0f + (float)(rand() % 6); // 9.0 a 14.0 L
+        } else if (sorte < 85) {
+            agua_encontrada = 9.0f + (float)(rand() % 6);
             printf("🌳 SAGRADO UMBUZEIRO! Cavando ao redor do tronco, desenterraram batatas d'água cheias de suco doce!\n");
             printf("   A família matou a sede e guardou muita água (+%.1f L)!\n", agua_encontrada);
-        } else { // Pouco achado
-            agua_encontrada = 3.0f + (float)(rand() % 3); // 3.0 a 5.0 L
+        } else {
+            agua_encontrada = 3.0f + (float)(rand() % 3);
             printf("🌵 O sol tostou quase tudo. Só conseguiram extrair seiva de cardeiros espinhosos (+%.1f L).\n", agua_encontrada);
         }
-    } else if (opcao_busca == 2) { // FOCO EM CACA / ALIMENTO
-        if (sorte < 50) { // Prea e tatu
-            comida_encontrada = 4.5f + (float)(rand() % 4); // 4.5 a 7.5 kg
+    } else if (opcao_busca == 2) {
+        if (sorte < 50) {
+            comida_encontrada = 4.5f + (float)(rand() % 4);
             printf("🎯 TIRO CERTEIRO! Pegaram um tatu-bola gordo e três preás nas locas de pedra (+%.1f kg)!\n", comida_encontrada);
             printf("   Hoje haverá carne assada no espeto de jurema!\n");
-        } else if (sorte < 85) { // Arribações
-            comida_encontrada = 3.0f + (float)(rand() % 3); // 3.0 a 5.0 kg
+        } else if (sorte < 85) {
+            comida_encontrada = 3.0f + (float)(rand() % 3);
             printf("🕊️ Um bando de arribações pousou no juazeiro. Severino armou arapucas e colheu caça (+%.1f kg)!\n", comida_encontrada);
-        } else { // Pouca caca
-            comida_encontrada = 1.0f + (float)(rand() % 2); // 1.0 a 2.0 kg
+        } else {
+            comida_encontrada = 1.0f + (float)(rand() % 2);
             printf("🍂 A bimarada sumiu com o calor. Apenas um mocó magro foi apanhado (+%.1f kg).\n", comida_encontrada);
         }
-    } else { // COLETA BALANCEADA
-        agua_encontrada = 6.0f + (float)(rand() % 6);   // 6.0 a 11.0 L
-        comida_encontrada = 2.5f + (float)(rand() % 3); // 2.5 a 4.5 kg
+    } else {
+        agua_encontrada = 6.0f + (float)(rand() % 6);
+        comida_encontrada = 2.5f + (float)(rand() % 3);
         printf("🌵 COLHEITA SERTANEJA: Cortaram palmas de mandacaru e apanharam juás maduros!\n");
         printf("   Garantiram água fresca (+%.1f L) e sustança para o alforje (+%.1f kg)!\n", agua_encontrada, comida_encontrada);
     }
 
-    // Adiciona o que foi encontrado
     c->agua_litros += agua_encontrada;
     c->rapadura_kg += comida_encontrada;
 
-    // Consumo diario: como beberam e comeram na expedicao, o consumo do dia e mais brando
     float agua_consumida = (c->total_vivos * 0.8f) + (c->jumento_vivo ? 1.5f : 0.0f);
-    float comida_consumida = (opcao_busca == 2) ? 0.0f : (c->total_vivos * 0.4f); // Se cacou, carne ja cobre a fome
+    float comida_consumida = (opcao_busca == 2) ? 0.0f : (c->total_vivos * 0.4f);
 
     printf("\n--- BALANÇO DO DIA DE EXPEDIÇÃO ---\n");
     if (agua_encontrada > 0.0f) {
@@ -843,7 +811,7 @@ void acao_ver_diario_bordo(const Caravana *c) {
     printf("Estimativa de Autonomia dos Mantimentos:\n");
     float consumo_agua_estimado = (c->total_vivos * 1.3f) + (c->jumento_vivo ? 2.0f : 0.0f);
     float consumo_comida_estimado = (c->total_vivos * 0.5f);
-    
+
     printf("  Água restante: %.1f L (~%.1f dias de autonomia)\n",
            c->agua_litros,
            (consumo_agua_estimado > 0) ? (c->agua_litros / consumo_agua_estimado) : 0.0f);
@@ -859,8 +827,6 @@ void acao_ver_diario_bordo(const Caravana *c) {
     printf("======================================================================\n");
     pausar_tela();
 }
-
-/* --- TELAS DE FIM DE JOGO --- */
 
 void exibir_vitoria(const Caravana *c) {
     system("clear");
@@ -907,8 +873,6 @@ void exibir_derrota(const Caravana *c, const char *motivo) {
     printf("======================================================================\n");
 }
 
-/* --- TELA INICIAL COM APRESENTACAO CULTURAL --- */
-
 void tela_abertura(void) {
     system("clear");
     printf("======================================================================\n");
@@ -950,8 +914,6 @@ void exibir_manual(void) {
     pausar_tela();
 }
 
-/* --- LOOP PRINCIPAL DO JOGO --- */
-
 int main(void) {
     srand((unsigned int)time(NULL));
 
@@ -988,7 +950,6 @@ int main(void) {
     while (jogo_ativo) {
         exibir_painel(&caravana);
 
-        // Menu de escolhas diárias
         printf("AÇÕES DO DIA:\n");
         printf("[1] Marchar na estrada (Avançar léguas)\n");
         printf("[2] Descansar à sombra do juazeiro (Recuperar saúde e fôlego)\n");
@@ -1051,20 +1012,18 @@ int main(void) {
                 break;
         }
 
-        // 1. CHECAGEM OBRIGATÓRIA DE DERROTA PRIMEIRO
-        if (!caravana.familia[0].vivo) { // Severino faleceu
+        if (!caravana.familia[0].vivo) {
             exibir_derrota(&caravana, "Severino, o líder da família, faleceu na caminhada. A caravana se dispersou na caatinga.");
             jogo_ativo = 0;
             break;
         }
 
-        if (caravana.total_vivos <= 0) { // Todos faleceram
+        if (caravana.total_vivos <= 0) {
             exibir_derrota(&caravana, "Nenhum membro da família resistiu à dureza da seca.");
             jogo_ativo = 0;
             break;
         }
 
-        // 2. CHECAGEM DE VITÓRIA DEPOIS
         if (caravana.leguas_andadas >= META_LEGUAS) {
             exibir_vitoria(&caravana);
             jogo_ativo = 0;
