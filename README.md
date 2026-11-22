@@ -34,6 +34,10 @@ Lista com 10 desafios práticos de lógica e algoritmos:
 - **`q09_vogais.c`:** Função dedicada para leitura de mensagem e contagem individual das vogais (A, E, I, O, U).
 - **`q10_sem_vogais.c`:** Filtragem de string removendo todas as vogais informadas pelo usuário.
 
+### 4. `Atividade_Entrega/`
+Jogo completo para terminal com temática regional nordestina:
+- **`Sertao_trail.c`:** *Sertão Trail: A Marcha dos Retirantes* — Jogo de simulação e sobrevivência na caatinga durante a Grande Seca de 1877. Integra simulação de temperatura e clima (estilo `Termostato.c`), gestão de recursos, animais e alforje com structs (estilo `ferralog.c`), economia de réis e juros/desgaste (estilo `Empilhadeira.c`), feiras livres (Teixeira, Patos, Campina Grande), eventos de cangaço e desfechos em literatura de cordel.
+
 ---
 
 ## 🛠️ Como Compilar e Executar
@@ -51,6 +55,9 @@ gcc -Wall -Wextra FerraLog/ferralog/ferralog.c -o ferralog
 
 # Compilar uma questão dos desafios (ex.: Questão 1)
 gcc -Wall -Wextra Atividade_Desafio/q01_eleitores.c -o q01
+
+# Compilar o jogo Sertão Trail
+gcc -Wall -Wextra Atividade_Entrega/Sertao_trail.c -o sertao_trail
 ```
 
 ### Executando:
@@ -59,4 +66,5 @@ gcc -Wall -Wextra Atividade_Desafio/q01_eleitores.c -o q01
 ./Empilhadeira
 ./ferralog
 ./q01
+./sertao_trail
 ```
